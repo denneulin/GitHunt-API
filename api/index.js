@@ -20,7 +20,7 @@ import {
   instrumentSchema,
   newContext,
 } from 'optics-agent';
-setupOptics({appKey: '1234'});
+setupOptics({ appKey: '1234' });
 
 
 import { schema, resolvers } from './schema';
