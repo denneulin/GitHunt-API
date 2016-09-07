@@ -15,8 +15,8 @@ const store = new KnexSessionStore({
 
 
 import OpticsAgent from 'optics-agent';
-const agent = new OpticsAgent({ reportIntervalMs: 10*1000,
-                                printReports: true});
+const agent = new OpticsAgent({ reportIntervalMs: 10 * 1000,
+                                printReports: true });
 
 
 import { schema, resolvers } from './schema';
