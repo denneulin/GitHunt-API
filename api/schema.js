@@ -1,6 +1,8 @@
 import { merge } from 'lodash';
 import { schema as gitHubSchema, resolvers as gitHubResolvers } from './github/schema';
 import { schema as sqlSchema, resolvers as sqlResolvers } from './sql/schema';
+import { Kind } from 'graphql/language';
+import { GraphQLError } from 'graphql/error';
 import { makeExecutableSchema } from 'graphql-tools';
 import { pubsub } from './subscriptions';
 
@@ -18,7 +20,12 @@ enum FeedType {
   TOP
 }
 
+scalar Limit
+
 type Query {
+  
+  testLimit(arg1: Int, limit: Limit = 20): String
+
   # A feed of repository submissions
   feed(
     # The sort order for the feed
@@ -88,7 +95,38 @@ schema {
 `];
 
 const rootResolvers = {
+  Limit: {
+    __description: 'The Limit scalar type represents an integer between 1 and 20.',
+    __parseValue(value) {
+      return value;
+    },
+    __serialize(value) {
+      return value;
+    },
+    __parseLiteral(ast) {
+      if (ast.kind !== Kind.INT) {
+        throw new GraphQLError(`Query error: Can only parse Int got a: ${ast.kind}.`, [ast]);
+      }
+
+      const parsedLimit = parseInt(ast.value, 10);
+      const min = 1;
+      const max = 20;
+
+      if (parsedLimit < min) {
+        throw new GraphQLError(`Minimum value for "limit" is ${min}.`, [ast]);
+      }
+      if (parsedLimit > max) {
+        throw new GraphQLError(`Maximum value for "limit" is ${max}.`, [ast]);
+      }
+
+      return parsedLimit;
+    },
+  },
   Query: {
+    testLimit(root, { limit }, context) {
+      console.log('limit = ', limit);
+      return `value: ${limit} - type: ${typeof limit}`;
+    },
     feed(root, { type, offset, limit }, context) {
       // Ensure API consumer can only fetch 10 items at most
       const protectedLimit = (limit < 1 || limit > 10) ? 10 : limit;

@@ -8,7 +8,7 @@ import {
   GITHUB_CLIENT_SECRET,
 } from './githubKeys';
 
-import { setUpGitHubLogin } from './githubLogin';
+// import { setUpGitHubLogin } from './githubLogin';
 import { GitHubConnector } from './github/connector';
 import { Repositories, Users } from './github/models';
 import { Entries, Comments } from './sql/models';
@@ -31,7 +31,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-setUpGitHubLogin(app);
+// setUpGitHubLogin(app);
 
 app.use('/graphql', apolloExpress((req) => {
   // Get the query, the same way express-graphql does it
@@ -77,14 +77,14 @@ app.use('/graphql', apolloExpress((req) => {
 app.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
   query: `{
-  feed (type: NEW, limit: 5) {
-    repository {
-      owner { login }
-      name
-    }
-
-    postedBy { login }
-  }
+  # limit === false : should be 20
+  limitIsFalse: testLimit
+  
+  # limit === false : should be 20
+  limitIsFalse2: testLimit(arg1: 1)
+  
+  # limit === 2 : OK
+  limitIs2: testLimit(limit: 2)
 }
 `,
 }));
